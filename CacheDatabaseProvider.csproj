@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2D8DE026-833E-4E5F-9C7A-F48483E36985}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OutSystems.HubEdition.DatabaseProvider.Cache</RootNamespace>
+    <AssemblyName>OutSystems.HubEdition.DatabaseProvider.Cache</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Libraries\plugins\database\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Libraries\plugins\database\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="InterSystems.Data.CacheClient, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ad350a26c4a4447c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\InterSystems.Data.CacheClient.dll</HintPath>
+    </Reference>
+    <Reference Include="OutSystems.RuntimeCommon, Version=9.0.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\OutSystemsLibraries\OutSystems.RuntimeCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\CacheDatabaseConfiguration.cs" />
+    <Compile Include="Configuration\CacheRuntimeDatabaseConfiguration.cs" />
+    <Compile Include="CacheDatabaseProvider.cs" />
+    <Compile Include="DatabaseObjects\CacheDataTypeInfo.cs" />
+    <Compile Include="DML\CacheDMLAggregateFunctions.cs" />
+    <Compile Include="DML\CacheDMLDefaultValues.cs" />
+    <Compile Include="DML\CacheDMLEntityActions.cs" />
+    <Compile Include="DML\CacheDMLFunctions.cs" />
+    <Compile Include="DML\CacheDMLIdentifiers.cs" />
+    <Compile Include="DML\CacheDMLOperators.cs" />
+    <Compile Include="DML\CacheDMLQueries.cs" />
+    <Compile Include="DML\CacheDMLService.cs" />
+    <Compile Include="DML\CacheDMLSyntaxHighlightDefinitions.cs" />
+    <Compile Include="Execution\CacheExecutionService.cs" />
+    <Compile Include="DatabaseObjects\CacheDatabaseInfo.cs" />
+    <Compile Include="DatabaseObjects\CacheDatabaseObjectFactory.cs" />
+    <Compile Include="Introspection\CacheIntrospectionService.cs" />
+    <Compile Include="DatabaseObjects\CacheTableSourceColumnInfo.cs" />
+    <Compile Include="DatabaseObjects\CacheTableSourceForeignKeyInfo.cs" />
+    <Compile Include="DatabaseObjects\CacheTableSourceInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\Projects\DatabaseAbstractionLayer\Properties\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="CacheDatabaseServices.cs" />
+    <Compile Include="CacheProviderProperties.cs" />
+    <Compile Include="Transaction\CacheTransactionService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Projects\DatabaseAbstractionLayer\DatabaseAbstractionLayer.csproj">
+      <Project>{e451fec9-2b6b-45a2-8ab9-57196f4557e8}</Project>
+      <Name>DatabaseAbstractionLayer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(ProjectDir)..\CacheDatabaseProvider.Tests\CacheDatabaseProvider.Tests.config" "$(ProjectDir)..\Libraries\"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
