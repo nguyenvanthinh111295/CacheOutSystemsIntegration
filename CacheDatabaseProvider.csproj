@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Libraries\plugins\database\</OutputPath>
+    <OutputPath>..\..\Libraries\plugins\database\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -68,7 +68,7 @@
     <Compile Include="DatabaseObjects\CacheTableSourceForeignKeyInfo.cs" />
     <Compile Include="DatabaseObjects\CacheTableSourceInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\Projects\DatabaseAbstractionLayer\Properties\CommonAssemblyInfo.cs">
+    <Compile Include="..\DatabaseAbstractionLayer\Properties\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CacheDatabaseServices.cs" />
@@ -76,14 +76,14 @@
     <Compile Include="Transaction\CacheTransactionService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Projects\DatabaseAbstractionLayer\DatabaseAbstractionLayer.csproj">
+    <ProjectReference Include="..\DatabaseAbstractionLayer\DatabaseAbstractionLayer.csproj">
       <Project>{e451fec9-2b6b-45a2-8ab9-57196f4557e8}</Project>
       <Name>DatabaseAbstractionLayer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(ProjectDir)..\CacheDatabaseProvider.Tests\CacheDatabaseProvider.Tests.config" "$(ProjectDir)..\Libraries\"</PostBuildEvent>
+    <PostBuildEvent>copy "$(ProjectDir)..\CacheDatabaseProvider.Tests\CacheDatabaseProvider.Tests.config" "$(ProjectDir)..\..\Libraries\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
