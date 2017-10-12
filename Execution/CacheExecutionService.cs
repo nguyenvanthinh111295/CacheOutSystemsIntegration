@@ -13,6 +13,7 @@ using System.Linq;
 using OutSystems.HubEdition.Extensibility.Data;
 using OutSystems.HubEdition.Extensibility.Data.ExecutionService;
 using InterSystems.Data.CacheTypes;
+using InterSystems.Data.CacheClient;
 using System.Text.RegularExpressions;
 using OutSystems.HubEdition.Extensibility.Data.ConfigurationService;
 using OutSystems.HubEdition.Extensibility.Data.TransactionService;
@@ -140,6 +141,93 @@ namespace OutSystems.HubEdition.DatabaseProvider.Cache.Execution {
                 return ((bool)obj) ? "1" : "0";
             } else return DatabaseServices.DMLService.EscapeTextValue(obj.ToString());
         }
+
+        /// <summary>
+        /// Executes a command and returns the number of affected rows.
+        /// This implementation does not use the <code>isApplication</code> flag, and logs exceptions.
+        /// </summary>
+        /// <param name="cmd">The command to execute.</param>
+        /// <returns>The number of rows affected.</returns>
+		public override int ExecuteNonQuery(IDbCommand cmd) {
+            try {
+                return cmd.ExecuteNonQuery();
+            }
+            catch (DbException e) {
+                OSTrace.Error("Error executing ExecuteNonQuery (" + e.Message + ") with statement:" + Environment.NewLine + cmd.CommandText);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Executes a command(s) and returns the value of the first column of the first row in the resultset returned by the query.
+        /// This implementation logs exceptions.
+        /// </summary>
+        /// <param name="cmd">The command to execute.</param>
+        /// <returns>An object with the resulting first row and first column of the query defined in the query command.</returns>
+        public override object ExecuteScalar(IDbCommand cmd) {
+            object returnObject = null;
+
+            try {
+                // The Caché database cannot handle multiple SQL commands in one call.
+                // Therefore have to parse the SQL statements, execute each and return only the last one's value.
+                // We have to build a new cmd (IDbCommand) for each SQL statement, we also have to parse the parameters (IDataParameterColelction) 
+                // to get the parameters (IDataParameter) of each SQL statement to add the correct parameters to the cmd.
+                // Execute each with ExecuteNonQuery, we are not interested in the return, then for the last statement execute
+                // the command with ExecuteScalar() and return this result.
+                // If there is only one SQL statement this is east, simply call ExecuteScalar.
+
+                string cmdText = cmd.CommandText;
+                string pattern = @"(?<!@)@\w{1,}"; // Looks for parameter prefixed with @ and excludes anything starting with @@.
+                Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+                int numSqlStatements = 0;
+                char[] delimiterChars = { ';' };
+                string[] sqlStatements = cmdText.Split(delimiterChars);
+
+                // Check if last statement is empty
+                if (sqlStatements.Length > 0) {
+                    string sqlLast = sqlStatements[sqlStatements.Length - 1].Trim();
+                    numSqlStatements = sqlLast.Length == 0 ? sqlStatements.Length - 1 : sqlStatements.Length;
+                }
+
+                if (numSqlStatements > 1) {
+                    for (int i = 0; i < numSqlStatements; i++) {
+                        string sqlStatement = sqlStatements[i];
+                        using (IDbCommand newCmd = CreateCommand(cmd.Connection, sqlStatement)) {
+
+                            // Copy all the current command's parameters to the new command.
+                            newCmd.CommandTimeout = cmd.CommandTimeout;
+                            newCmd.CommandType = cmd.CommandType;
+                            newCmd.Transaction = cmd.Transaction;
+                            newCmd.UpdatedRowSource = cmd.UpdatedRowSource;
+
+                            // Now parse and add Parameters
+                            MatchCollection matchColl = rgx.Matches(sqlStatement);
+                            foreach (Match m in matchColl) {
+                                IDbDataParameter dataParam = (IDbDataParameter)cmd.Parameters[m.Value];
+                                IDbDataParameter newParam = CreateParameter(newCmd, dataParam.ParameterName, dataParam.DbType, dataParam.Value);
+                                SetParameterDirection(newParam, dataParam.Direction);
+                            }
+
+                            // Is this the last SQL statement?
+                            if (i == (numSqlStatements - 1)) {
+                                returnObject = newCmd.ExecuteScalar();
+                            } else {
+                                newCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                } else {
+                    returnObject = cmd.ExecuteScalar();
+                }
+
+                return returnObject;
+            }
+            catch (DbException e) {
+                OSTrace.Error("Error executing ExecuteScalar (" + e.Message + ") with statement:" + Environment.NewLine + cmd.CommandText);
+                throw;
+            }
+        }
+
 
         /*
         /// <summary>
